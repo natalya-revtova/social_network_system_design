@@ -1,0 +1,24 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Client")
+Container(loadBalancer, "Load balancer", "Nginx", "Uses round robin")
+Container(postSystem, "Post system", "Software system", "Stores posts")
+Container(messengerSystem, "Messenger system", "Software system", "Stores chats and messages")
+ContainerQueue(messageQueue, "Events queue", "Kafka", "Message queue for events of media content usage")
+
+System_Boundary(mediaSystem, "Media system") {
+    Container(mediaService, "Media service", "Go", "Responsible for uploading media content", $tags="webApp")
+    ContainerDb(mediaTempDatabase, "Temporary media database", "S3", "Temporarily stores media content before it is used in Post and Messenger systems",  $tags="db")
+    ContainerDb(mediaPerstDatabase, "Persistent media database", "S3", "Stores media content used in Post and Messenger systems",  $tags="db")
+}
+
+Rel(user, loadBalancer, "Uploads media content", "REST")
+Rel(loadBalancer, mediaService, "Uploads media content", "REST")
+
+Rel(mediaService, mediaTempDatabase, "Creates and deletes media content")
+Rel(mediaService, mediaPerstDatabase, "Creates media content")
+Rel(postSystem, messageQueue, "Pushes events of media content usage in posts")
+Rel(messengerSystem, messageQueue, "Pushes events of media content usage in messages")
+Rel(mediaService, messageQueue, "Reads events of media content usage and move used media content from temporary to persistent storage")
+@enduml

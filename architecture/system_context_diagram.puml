@@ -1,0 +1,14 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Client")
+Container(mediaSystem, "Media system", "Software system", "Responsible for uploading media content")
+Container(postSystem, "Post system", "Software system", "Handles posts creation and search. Stores comments and likes related to posts")
+Container(feedSystem, "Feed system", "Software system", "Builds feeds for users")
+Container(messengerSystem, "Messenger system", "Software system", "Responsible for creating chats and sending messages")
+
+Rel(user, mediaSystem, "Uploads media content")
+Rel(user, postSystem, "Creates posts, comments, likes, searches posts")
+Rel(user, feedSystem, "Gets feed")
+Rel(user, messengerSystem, "Creates chats, sends and reads messages")
+@enduml

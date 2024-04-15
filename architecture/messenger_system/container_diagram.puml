@@ -1,0 +1,20 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Client")
+Container(loadBalancer, "Load Balancer", "Nginx", "Uses round robin")
+Container(mediaSystem, "Media system", "Software system", "Stores media content")
+ContainerQueue(messageQueue, "Events queue", "Kafka", "Message queue for events of media content usage")
+
+System_Boundary(messengerSystem, "Messenger system") {
+    Container(messengerService, "Messenger service", "Go", "Responsible for creating chats and sending messages", $tags="webApp")
+    ContainerDb(mediaDatabase, "Messenger database", "PostgreSQL", "Stores chats and messages",  $tags="db")
+}
+
+Rel(user, loadBalancer, "Creates chat, sends message", "REST")
+Rel(loadBalancer, messengerService, "Creates chat, sends message", "REST")
+
+Rel(messengerService, mediaDatabase, "")
+Rel(messengerService, messageQueue, "Pushes events of media content usage in messages")
+Rel(mediaSystem, messageQueue, "Reads events of media content usage and move used media content from temporary to persistent storage")
+@enduml
