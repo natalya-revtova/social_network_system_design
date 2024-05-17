@@ -1,0 +1,60 @@
+// 1. БД для хранения картинок: blob-storage.
+// 2. БД для хранения постов, комментариев, лайков: реляционная БД.
+// 3. БД для хранения чатов, сообщений: реляционная БД.
+// 4. БД для хранения подписок пользователей: графовая БД.
+
+Table posts {
+  id integer [primary key]
+  user_id integer
+  body text
+  location varchar
+  images_urls varchar[]
+  created_at timestamp
+}
+
+Table comments {
+  id integer [primary key]
+  post_id integer [ ref:  > posts.id ]
+  user_id integer
+  reply_comment_id integer [ ref:  > comments.id ]
+  body text
+  created_at timestamp
+}
+
+Table likes {
+  id integer [primary key]
+  post_id integer [ ref:  > posts.id ]
+  user_id integer
+  created_at timestamp
+}
+
+Table chats {
+  id integer [primary key]
+  title varchar
+  image_url varchar
+}
+
+Table users_to_chats {
+  chat_id integer [ ref:  > chats.id ]
+  user_id integer
+}
+
+Table messages {
+  id integer [primary key]
+  chat_id integer [ ref:  > chats.id ]
+  user_id integer
+  body text
+  images_urls varchar[]
+  created_at timestamp
+}
+
+Table last_seen_message {
+  chat_id integer [ ref:  > chats.id ]
+  user_id integer
+  message_id integer [ ref:  > messages.id ]
+}
+
+Table last_message {
+  chat_id integer [ ref:  > chats.id ]
+  message_id integer [ ref:  > messages.id ]
+}
