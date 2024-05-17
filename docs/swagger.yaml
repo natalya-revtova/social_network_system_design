@@ -1,0 +1,600 @@
+basePath: /api
+definitions:
+  api.Chat:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      unread_messages:
+        type: boolean
+      users_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  api.Comment:
+    properties:
+      created_at:
+        type: string
+      post_id:
+        type: integer
+      reply_comment_id:
+        type: integer
+      text:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  api.ImageInfo:
+    properties:
+      url:
+        type: string
+    type: object
+  api.Message:
+    properties:
+      chat_id:
+        type: integer
+      created_at:
+        type: string
+      images_urls:
+        items:
+          type: string
+        type: array
+      seen:
+        type: boolean
+      text:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  api.PaginatedChats:
+    properties:
+      records:
+        items:
+          $ref: '#/definitions/api.Chat'
+        type: array
+      total:
+        type: integer
+    type: object
+  api.PaginatedMessages:
+    properties:
+      records:
+        items:
+          $ref: '#/definitions/api.Message'
+        type: array
+      total:
+        type: integer
+    type: object
+  api.PaginatedPosts:
+    properties:
+      records:
+        items:
+          $ref: '#/definitions/api.Post'
+        type: array
+      total:
+        type: integer
+    type: object
+  api.Post:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      images_urls:
+        items:
+          type: string
+        type: array
+      location:
+        type: string
+      text:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  api.PostsTop:
+    properties:
+      location:
+        type: string
+    type: object
+  api.RestError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Social network for travelers API
+  version: "1.0"
+paths:
+  /v1/chats:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Chat object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.Chat'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.Chat'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Create chat
+      tags:
+      - Chats
+  /v1/chats/{id}:
+    delete:
+      parameters:
+      - description: ID of chat to be deleted
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Delete chat by ID
+      tags:
+      - Chats
+    get:
+      parameters:
+      - description: ID of chat to be retrieved
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.PaginatedMessages'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Get chat messages
+      tags:
+      - Chats
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of chat to be updated
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Chat object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.Chat'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Chat'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Update chat by ID
+      tags:
+      - Chats
+  /v1/chats/{id}/message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of chat to send message
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Message object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.Message'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.PaginatedMessages'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Send message to chat
+      tags:
+      - Chats
+  /v1/chats/users/{id}:
+    get:
+      parameters:
+      - description: ID of user to get chats
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PaginatedChats'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Get chats by user
+      tags:
+      - Chats
+  /v1/feed/users/{id}:
+    get:
+      parameters:
+      - description: ID of user to get feed
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PaginatedPosts'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Get feed by user
+      tags:
+      - Feed
+  /v1/images:
+    post:
+      consumes:
+      - image/jpeg
+      parameters:
+      - description: JPEG image
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.ImageInfo'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Upload image
+      tags:
+      - Images
+  /v1/posts:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.Post'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.Post'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Create post
+      tags:
+      - Posts
+  /v1/posts/{id}/comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of post to comment
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Comment object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Comment post
+      tags:
+      - Posts
+  /v1/posts/{id}/like:
+    post:
+      parameters:
+      - description: ID of post to like
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Post'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Like post
+      tags:
+      - Posts
+  /v1/posts/top:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - description: PostsTop object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.PostsTop'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PaginatedPosts'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Get posts top
+      tags:
+      - Posts
+  /v1/posts/users/{id}:
+    get:
+      parameters:
+      - description: ID of user to get posts
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PaginatedPosts'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Get posts by user
+      tags:
+      - Posts
+  /v1/users/{id}/subscription:
+    delete:
+      parameters:
+      - description: ID of user to unsubscribe from
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Unsubscribe from user
+      tags:
+      - Users
+    post:
+      parameters:
+      - description: ID of user to subscribe to
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.RestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.RestError'
+      summary: Subscribe to user
+      tags:
+      - Users
+swagger: "2.0"
