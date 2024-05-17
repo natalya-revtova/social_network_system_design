@@ -84,3 +84,21 @@
 Общий объём данных в год: (17GB + 104GB) * 365 = 44TB.
 
 Необходимое количество дисков (HDD по 6TB) на 1 год: по размеру (44TB/6TB=8) и пропускной способности (100MB/s) достаточно 8-и дисков, но для поддержания рассчитанного RPS (1159RPS/100IOPS=12) необходимы ещё 4 диска. Итого 12 HDD по 6TB.
+
+## Дизайн
+Дизайн системы представлен в нотации С4. Построены диаграммы для двух уровней абстракции: context и container.
+
+#### Уровень 1. System context diagram
+![context-diagram](architecture/diagram.png?raw=true)
+
+#### Уровень 2. Media system container diagram
+![media-diagram](architecture/media_system/diagram.png?raw=true)
+
+#### Уровень 2. Messenger system container diagram
+![messenger-diagram](architecture/messenger_system/diagram.png?raw=true)
+
+#### Уровень 2. Post system container diagram
+![post-diagram](architecture/post_system/diagram.png?raw=true)
+
+#### Уровень 2. Feed system container diagram
+![feed-diagram](architecture/feed_system/diagram.png?raw=true)

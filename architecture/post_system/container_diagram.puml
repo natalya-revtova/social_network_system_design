@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Client")
+Container(loadBalancer, "Load Balancer", "Nginx", "Uses round robin")
+Container(mediaSystem, "Media system", "Software system", "Stores media content")
+ContainerQueue(mediaMessageQueue, "Events queue", "Kafka", "Message queue for events of media content usage")
+Container(feedSystem, "Feed system", "Software system", "Builds feeds for users")
+ContainerQueue(feedMessageQueue, "Events queue", "Kafka", "Message queue for events of created posts")
+
+System_Boundary(postSystem, "Post system") {
+    Container(postService, "Post service", "Go", "Handles posts creation, commenting, like. Uses transaction outbox", $tags="webApp")
+    ContainerDb(postDatabase, "Post database", "PostgreSQL", "Stores posts, comments, likes",  $tags="db")
+    Container(searchService, "Search service", "Go", "Handles posts searching", $tags="webApp")
+}
+
+Rel(user, loadBalancer, "Creates, comments, likes posts", "REST")
+Rel(user, loadBalancer, "Searches posts", "REST")
+Rel(loadBalancer, postService, "Creates, comments, likes post", "REST")
+Rel(loadBalancer, searchService, "Searches post", "REST")
+
+Rel(postService, postDatabase, "Creates posts, comments, likes")
+Rel(searchService, postDatabase, "Searches posts")
+Rel(postService, mediaMessageQueue, "Pushes events of media content usage in posts")
+Rel(mediaSystem, mediaMessageQueue, "Reads events of media content usage and move used media content from temporary to persistent storage")
+Rel(postService, feedMessageQueue, "Pushes events of created posts")
+Rel(feedSystem, feedMessageQueue, "Reads events of created posts and rebuild users' feeds")
+
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Client")
+Container(loadBalancer, "Load Balancer", "Nginx", "Uses round robin")
+ContainerQueue(feedMessageQueue, "Events queue", "Kafka", "Message queue for events of created posts")
+Container(postSystem, "Post system", "Software system", "Handles posts creation")
+
+System_Boundary(feedSystem, "Feed system") {
+    Container(feedService, "Feed service", "Go", "Handles feeds building", $tags="webApp")
+    ContainerDb(feedDatabase, "Feed database", "Tarantool", "Stores users' feeds",  $tags="db")
+    Container(relationService, "Relation service", "Go", "Handle relations between users", $tags="webApp")
+    ContainerDb(relationDatabase, "Relation database", "Neo4j", "Stores relations between users",  $tags="db")
+}
+
+Rel(user, loadBalancer, "Gets feed", "REST")
+Rel(loadBalancer, feedService, "Gets feed", "REST")
+Rel(user, loadBalancer, "Sunscribes to users, unsubscribes from user", "REST")
+Rel(loadBalancer, relationService, "Subscribes to users, unsubscribes from users", "REST")
+
+Rel(feedService, feedDatabase, "Creates or updates feeds")
+Rel(relationService, relationDatabase, "Creates or updates relations")
+Rel(feedService, relationService, "Gets relations", "gRPC")
+
+Rel(feedService, feedMessageQueue, "Reads events of created posts and rebuild users' feeds")
+Rel(postSystem, feedMessageQueue, "Pushes events of created posts")
+Rel(feedService, postSystem, "Gets old posts to build feed", "gRPC")
+
+@enduml
